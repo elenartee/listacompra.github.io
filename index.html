@@ -16,10 +16,35 @@
     /* iOS: evita zoom al enfocar inputs */
     input { font-size: 16px; }
   </style>
+
 </head>
 
 <body class="min-h-screen bg-gradient-to-b from-white to-gray-50 text-gray-900 antialiased">
-  <main class="mx-auto max-w-md sm:max-w-lg px-4 pb-28">
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAiNkVD6eVwMbq86IyurqAKOZCfdU6l2AE",
+    authDomain: "listacompra-a8174.firebaseapp.com",
+    databaseURL: "https://listacompra-a8174-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "listacompra-a8174",
+    storageBucket: "listacompra-a8174.firebasestorage.app",
+    messagingSenderId: "1021160831609",
+    appId: "1:1021160831609:web:49e4cdc4909612b156f2a8",
+    measurementId: "G-QYE9WETVMW"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+    <main class="mx-auto max-w-md sm:max-w-lg px-4 pb-28">
     <!-- Header -->
     <header class="pt-6 pb-4 sticky top-0 bg-white bg-opacity-90 border-b border-gray-100 z-10">
       <h1 class="text-2xl sm:text-3xl font-bold tracking-tight flex items-center space-x-2">
@@ -132,24 +157,23 @@
       countEl.textContent = items.length === 1 ? '1 producto' : `${items.length} productos`;
     }
 
-    // ====== Funciones de almacenamiento ======
-    function loadList() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch (e) {
-        console.warn('No se pudo leer localStorage:', e);
-        return [];
-      }
-    }
+
 
     function saveList(list) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-      } catch (e) {
-        console.warn('No se pudo guardar en localStorage:', e);
-      }
+    dbRef.set(list.reduce((acc, item, idx) => {
+        acc[`item${idx}`] = item;
+        return acc;
+    }, {}));
     }
+  // Cambia esta función para cargar la lista desde Firebase en tiempo real
+    function loadList() {
+    dbRef.on("value", (snapshot) => {
+        const data = snapshot.val();
+        items = data ? Object.values(data) : [];
+        render();  // Rerender la lista después de cargarla desde Firebase
+    });
+    }
+
 
     // ====== Acciones ======
     function addItem() {
