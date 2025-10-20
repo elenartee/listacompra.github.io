@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>🛒 Lista de la compra</title>
+
+  <!--
+  =============================
+  INSTRUCCIONES RÁPIDAS (también visibles al final):
+  1) Guarda este archivo como "lista_compra.html".
+  2) Ábrelo con el navegador del móvil.
+  3) Necesitas conexión la primera vez para cargar Tailwind desde CDN.
+  4) Escribe un producto y pulsa ✓ (o Enter). Usa la X para borrar.
+  5) La lista se guarda en tu dispositivo (localStorage).
+  =============================
+  -->
+
+  <!-- Tailwind CSS desde CDN (versión estática y ligera, ideal para móvil) -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <style>
+    :root { 
+      --safe-top: env(safe-area-inset-top); 
+      --safe-bottom: env(safe-area-inset-bottom); 
+    }
+    /* iOS: evita zoom al enfocar inputs */
+    input { font-size: 16px; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-white to-gray-50 text-gray-900 antialiased">
+  <main class="mx-auto max-w-md sm:max-w-lg px-4 pb-28">
+    <!-- Header -->
+    <header class="pt-6 pb-4 sticky top-0 bg-white bg-opacity-90 border-b border-gray-100 z-10">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight flex items-center space-x-2">
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-green-500 bg-opacity-10">🛒</span>
+        <span>Lista de la compra</span>
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">Rápida, bonita y pensada para móvil.</p>
+
+      <!-- Barra de entrada -->
+      <div class="mt-4 flex items-stretch space-x-2">
+        <label for="item-input" class="sr-only">Nuevo producto</label>
+        <input id="item-input" type="text" inputmode="text" autocomplete="off"
+               class="flex-1 rounded-2xl border border-gray-200 px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+               placeholder="Añade un producto… (p. ej., Leche)" />
+        <button id="add-btn" type="button" aria-label="Añadir a la lista"
+                class="shrink-0 rounded-2xl px-4 sm:px-5 py-3 bg-green-600 text-white font-semibold shadow-sm active:opacity-90 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center space-x-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-2.59a.75.75 0 1 0-1.06-1.06L10.5 12.44l-1.53-1.53a.75.75 0 0 0-1.06 1.06l2.06 2.06a.75.75 0 0 0 1.06 0l4.62-4.62Z" clip-rule="evenodd"/>
+          </svg>
+          <span class="hidden sm:inline">Añadir</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Lista -->
+    <section class="mt-4" aria-live="polite" aria-relevant="additions removals">
+      <ul id="list" class="space-y-2"></ul>
+
+      <!-- Estado vacío -->
+      <div id="empty-state" class="mt-8 text-center text-gray-500 select-none">
+        <div class="mx-auto w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center shadow-inner">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
+            <path d="M2.25 3.375a.75.75 0 0 1 .75-.75H6a2.25 2.25 0 0 1 2.121 1.5h9.379a.75.75 0 0 1 .728.568l2.25 9a.75.75 0 0 1-.728.932H8.25a.75.75 0 0 1-.728-.568L5.9 5.625H3a.75.75 0 0 1-.75-.75ZM8.25 18a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm9-1.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+          </svg>
+        </div>
+        <p class="mt-3 text-sm">Tu lista está vacía. Empieza añadiendo productos arriba.</p>
+      </div>
+    </section>
+
+    <!-- Pie con ayuda -->
+    <footer class="pt-8 pb-24 text-xs text-gray-500">
+      <details class="rounded-2xl border border-gray-200 px-4 py-3 bg-white shadow-sm">
+        <summary class="cursor-pointer font-medium text-gray-700">Cómo ejecutar y usar esta app</summary>
+        <ol class="list-decimal pl-5 mt-3 space-y-1">
+          <li>Guarda este archivo como <span class="font-mono text-gray-700">lista_compra.html</span>.</li>
+          <li>Ábrelo con tu navegador en el móvil u ordenador. En iPhone/iPad usa Archivos → Compartir → Abrir en Safari; en Android, toca el archivo desde Descargas.</li>
+          <li>Escribe el producto y pulsa <strong>✓</strong> (o <strong>Enter</strong>) para añadirlo. Toca la <strong>X</strong> para eliminar.</li>
+          <li>La lista se guarda automáticamente en tu dispositivo (no se envía a ningún servidor).</li>
+        </ol>
+      </details>
+    </footer>
+  </main>
+
+  <!-- Barra inferior -->
+  <nav class="fixed inset-x-0 bottom-0 z-20 px-4 pt-3 pb-3 bg-white bg-opacity-95 border-t border-gray-200">
+    <div class="mx-auto max-w-md sm:max-w-lg flex items-center justify-between">
+      <button id="clear-all" type="button" class="text-sm text-red-600 font-medium hover:underline">Borrar todo</button>
+      <span id="count" class="text-sm text-gray-600">0 productos</span>
+    </div>
+  </nav>
+
+  <script>
+    // ====== Utilidades de almacenamiento ======
+    const STORAGE_KEY = 'shoppingList.v1';
+
+    function loadList() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.warn('No se pudo leer localStorage:', e);
+        return [];
+      }
+    }
+
+    function saveList(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.warn('No se pudo guardar en localStorage:', e);
+      }
+    }
+
+    // ====== Estado ======
+    let items = loadList();
+
+    // ====== Elementos del DOM ======
+    const input = document.getElementById('item-input');
+    const addBtn = document.getElementById('add-btn');
+    const listEl = document.getElementById('list');
+    const emptyState = document.getElementById('empty-state');
+    const clearAllBtn = document.getElementById('clear-all');
+    const countEl = document.getElementById('count');
+
+    // ====== Lógica de renderizado ======
+    function render() {
+      listEl.innerHTML = '';
+
+      if (!items.length) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      items.forEach((text, idx) => {
+        const li = document.createElement('li');
+        li.className = 'bg-white border border-gray-200 rounded-2xl shadow-sm px-4 py-3 flex items-center justify-between';
+
+        const span = document.createElement('span');
+        span.textContent = text;
+        span.className = 'text-base break-words flex-1 pr-3';
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'inline-flex items-center justify-center rounded-xl border border-red-200 text-red-600 px-3 py-2 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400';
+        delBtn.setAttribute('aria-label', `Eliminar ${text}`);
+        delBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm2.03 6.72a.75.75 0 1 0-1.06-1.06L12 8.88l-1.97-1.97a.75.75 0 0 0-1.06 1.06L10.94 9.94l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 11.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 9.94l1.97-1.97Z" clip-rule="evenodd" />
+          </svg>`;
+        delBtn.addEventListener('click', () => {
+          items.splice(idx, 1);
+          saveList(items);
+          render();
+          announce('Elemento eliminado');
+        });
+
+        li.appendChild(span);
+        li.appendChild(delBtn);
+        listEl.appendChild(li);
+      });
+
+      // Contador
+      countEl.textContent = items.length === 1 ? '1 producto' : `${items.length} productos`;
+    }
+
+    // ====== Acciones ======
+    function addItem() {
+      const text = input.value.trim();
+      if (!text) {
+        announce('Escribe un producto antes de añadir');
+        input.focus();
+        return;
+      }
+      items.push(text);
+      saveList(items);
+      input.value = '';
+      render();
+      // Desplaza hacia el final para ver el último añadido en pantallas pequeñas
+      setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 60);
+      announce('Producto añadido');
+    }
+
+    function clearAll() {
+      if (!items.length) return;
+      const ok = confirm('¿Borrar toda la lista?');
+      if (ok) {
+        items = [];
+        saveList(items);
+        render();
+        announce('Lista vaciada');
+      }
+    }
+
+    // ====== Accesibilidad: región de avisos oculta ======
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    document.body.appendChild(liveRegion);
+    function announce(msg) { liveRegion.textContent = msg; }
+
+    // ====== Eventos ======
+    addBtn.addEventListener('click', addItem);
+    clearAllBtn.addEventListener('click', clearAll);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addItem();
+      }
+    });
+
+    // Inicialización
+    render();
+    setTimeout(() => input.blur(), 0);
+  </script>
+</body>
+</html>
